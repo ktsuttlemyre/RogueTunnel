@@ -3,5 +3,5 @@ This is intended to be an easy install of several tunnel solutions. All you need
 
 # How to use
 ```bash
-<(curl -s https://raw.githubusercontent.com/ktsuttlemyre/RogueTunnel/master/install.sh) 'cloudflare_service'
+bash <(curl -s https://raw.githubusercontent.com/ktsuttlemyre/RogueTunnel/master/install.sh) 'cloudflare_service'
 ```
