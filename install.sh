@@ -74,7 +74,7 @@ cd
 #install
 sudo apt-get install cloudflared
 manual=false
-if [ $manual ]; then
+if $manual; then
 	# The package for this OS is retrieved 
 	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
 	sudo dpkg -i cloudflared-stable-linux-amd64.deb
