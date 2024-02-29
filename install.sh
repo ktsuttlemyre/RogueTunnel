@@ -71,9 +71,14 @@ cd /tmp
 echo "${docker_compose}"> /tmp/docker-compose.yml 
 # cloudflared configuration
 cd
-# The package for this OS is retrieved 
-wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
-sudo dpkg -i cloudflared-stable-linux-amd64.deb
+#install
+sudo apt-get install cloudflared
+manual=false
+if [ manual ]; then
+	# The package for this OS is retrieved 
+	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
+	sudo dpkg -i cloudflared-stable-linux-amd64.deb
+ fi
 # A local user directory is first created before we can install the tunnel as a system service 
 mkdir ~/.cloudflared
 touch ~/.cloudflared/cert.json
