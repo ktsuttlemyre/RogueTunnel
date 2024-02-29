@@ -78,6 +78,20 @@ if [ manual ]; then
 	# The package for this OS is retrieved 
 	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
 	sudo dpkg -i cloudflared-stable-linux-amd64.deb
+ else
+	. /etc/os-release
+	read _ UBUNTU_VERSION_NAME <<< "$VERSION"
+ 	VERSION=$(echo "$VERSION" | cut -f 1 -d " ")"
+  	VERSION="$(echo "$a" | tr '[:upper:]' '[:lower:]')"
+	 # Add cloudflare gpg key
+	sudo mkdir -p --mode=0755 /usr/share/keyrings
+	curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+	
+	# Add this repo to your apt repositories
+	echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $VERSION main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
+	
+	# install cloudflared
+	sudo apt-get update && sudo apt-get install cloudflared
  fi
 # A local user directory is first created before we can install the tunnel as a system service 
 mkdir ~/.cloudflared
