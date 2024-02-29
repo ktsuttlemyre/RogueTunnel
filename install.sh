@@ -81,7 +81,7 @@ if [ manual ]; then
  else
 	. /etc/os-release
 	read _ UBUNTU_VERSION_NAME <<< "$VERSION"
- 	VERSION=$(echo "$VERSION" | cut -f 1 -d " ")"
+ 	VERSION="$(echo "$VERSION" | cut -f 1 -d " ")"
   	VERSION="$(echo "$a" | tr '[:upper:]' '[:lower:]')"
 	 # Add cloudflare gpg key
 	sudo mkdir -p --mode=0755 /usr/share/keyrings
