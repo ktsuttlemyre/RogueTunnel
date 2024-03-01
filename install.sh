@@ -1,3 +1,5 @@
+#!/bin/bash
+set -ex
 #original script 
 # https://github.com/cloudflare/argo-tunnel-examples/blob/master/terraform-zerotrust-ssh-http-gcp/server.tpl
 #Resources:
@@ -55,39 +57,23 @@ EOF
 # cloudflared configuration
 cd
 #install
-sudo apt-get install cloudflared
-install_strat='general'
-if [ "$install_strat" = 'script']; then
-	# The package for this OS is retrieved 
-	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
-	sudo dpkg -i cloudflared-stable-linux-amd64.deb
- elif [ "$install_strat" = 'official']; then
-	. /etc/os-release
-	read _ UBUNTU_VERSION_NAME <<< "$VERSION"
- 	VERSION="$(echo "$VERSION" | cut -f 1 -d " ")"
-  	VERSION="$(echo "$a" | tr '[:upper:]' '[:lower:]')"
-	 # Add cloudflare gpg key
-	sudo mkdir -p --mode=0755 /usr/share/keyrings
-	curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
-	
-	# Add this repo to your apt repositories
-	echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $VERSION main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
-	
-	# install cloudflared
-	sudo apt-get update && sudo apt-get install cloudflared
- elif [ "$install_strat" = 'general' ]; then
- 	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
-  	sudo apt update && apt upgrade
-   	sudo apt install curl lsb-release
-    	curl -L https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-archive-keyring.gpg >/dev/null
-    	echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
-     	sudo apt update
-        sudo apt install -y cloudflared
- fi
+if ! command -v cloudflared &> /dev/null; then
+	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
+	sudo apt update && apt upgrade
+	sudo apt install curl lsb-release
+	VERSION=$(lsb_release -cs)
+	#find codename with only bash
+	# . /etc/os-release
+	# read _ UBUNTU_VERSION_NAME <<< "$VERSION"
+	# VERSION="$(echo "$VERSION" | cut -f 1 -d " ")"
+	 # VERSION="$(echo "$a" | tr '[:upper:]' '[:lower:]')"
+	curl -L https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-archive-keyring.gpg >/dev/null
+	echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $VERSION main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
+	sudo apt update
+	sudo apt install -y cloudflared
+fi
 # A local user directory is first created before we can install the tunnel as a system service 
-mkdir ~/.cloudflared
-touch ~/.cloudflared/cert.json
-touch ~/.cloudflared/config.yml
+mkdir -p ~/.cloudflared
 # Another herefile is used to dynamically populate the JSON credentials file 
 echo "${cert_json}" > ~/.cloudflared/cert.json 
 # Same concept with the Ingress Rules the tunnel will use 
@@ -95,7 +81,6 @@ echo "${config_yml}" > ~/.cloudflared/config.yml
 
 
 if [ "$as" == 'service' ]; then
-
   # Now we install the tunnel as a systemd service 
   sudo cloudflared service install
   # The credentials file does not get copied over so we'll do that manually 
