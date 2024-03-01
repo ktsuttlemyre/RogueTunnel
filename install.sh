@@ -15,23 +15,10 @@ echo "Some of the commands will need sudo access. Please grant sudo use."
 sudo echo "Thank you" || exit 1
 
 os='' # linux,mac,windows,etc
-as="${1:-service}" # cloudflare_service, cloudflare_docker, selfhosted_gateway
+as="${1:-cloudflare_service}" # cloudflare_service, cloudflare_docker, selfhosted_gateway
 cert="${2}"
 config="${3}"
 
-
-#################################################
-docker_compose=$(cat << "EOF"
-  version: '3'
-  services:
-    httpbin:
-      image: kennethreitz/httpbin
-      restart: always
-      container_name: httpbin
-      ports:
-        - 8080:80
-EOF
-)
 
 #################################################
 cert_json=$(cat << "EOF"
@@ -65,10 +52,6 @@ EOF
 )
 
 
-# Docker configuration
-cd /tmp
-# This is a herefile that is used to populate the /tmp/docker-compose.yml file. This logic is used elsewhere in this script 
-echo "${docker_compose}"> /tmp/docker-compose.yml 
 # cloudflared configuration
 cd
 #install
@@ -118,7 +101,6 @@ if [ "$as" == 'service' ]; then
   # The credentials file does not get copied over so we'll do that manually 
   sudo cp -via ~/.cloudflared/cert.json /etc/cloudflared/
   # start the tunnel 
-  cd /tmp
   sudo service cloudflared start
 elif [ "$as" == 'docker' ]; then
   # Retrieveing the docker repository for this OS
