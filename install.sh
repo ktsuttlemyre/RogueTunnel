@@ -36,17 +36,17 @@ EOF
 #################################################
 cert_json=$(cat << "EOF"
 {
-		"AccountTag"   : "${account}",
-		"TunnelID"     : "${tunnel_id}",
-		"TunnelName"   : "${tunnel_name}",
-		"TunnelSecret" : "${secret}"
+		"AccountTag"   : "${AccountTag}",
+		"TunnelID"     : "${TunnelID}",
+		"TunnelName"   : "${TunnelName}",
+		"TunnelSecret" : "${TunnelSecret}"
 }
 EOF
 )
 
 #################################################
 config_yml=$(cat << "EOF"
-tunnel: ${tunnel_id}
+tunnel: ${TunnelID}
 credentials-file: /etc/cloudflared/cert.json
 logfile: /var/log/cloudflared.log
 loglevel: info
