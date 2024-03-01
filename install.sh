@@ -25,10 +25,10 @@ config="${3}"
 #################################################
 cert_json=$(cat << "EOF"
 {
-		"AccountTag"   : "${AccountTag}",
-		"TunnelID"     : "${TunnelID}",
-		"TunnelName"   : "${TunnelName}",
-		"TunnelSecret" : "${TunnelSecret}"
+  "AccountTag"   : "${AccountTag}",
+  "TunnelID"     : "${TunnelID}",
+  "TunnelName"   : "${TunnelName}",
+  "TunnelSecret" : "${TunnelSecret}"
 }
 EOF
 )
@@ -56,8 +56,9 @@ EOF
 
 # cloudflared configuration
 cd
-#install
-if ! command -v cloudflared &> /dev/null; then
+if [ "$as" == 'cloudflare_service' ]; then
+  #install
+  if ! command -v cloudflared &> /dev/null; then
 	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
 	sudo apt update && apt upgrade
 	sudo apt install curl lsb-release
@@ -71,23 +72,22 @@ if ! command -v cloudflared &> /dev/null; then
 	echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $VERSION main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
 	sudo apt update
 	sudo apt install -y cloudflared
-fi
-# A local user directory is first created before we can install the tunnel as a system service 
-mkdir -p ~/.cloudflared
-# Another herefile is used to dynamically populate the JSON credentials file 
-echo "${cert_json}" > ~/.cloudflared/cert.json 
-# Same concept with the Ingress Rules the tunnel will use 
-echo "${config_yml}" > ~/.cloudflared/config.yml
+  fi
+  # A local user directory is first created before we can install the tunnel as a system service 
+  mkdir -p ~/.cloudflared
+  # Another herefile is used to dynamically populate the JSON credentials file 
+  echo "${cert_json}" > ~/.cloudflared/cert.json 
+  # Same concept with the Ingress Rules the tunnel will use 
+  echo "${config_yml}" > ~/.cloudflared/config.yml
 
-
-if [ "$as" == 'service' ]; then
+  
   # Now we install the tunnel as a systemd service 
   sudo cloudflared service install
   # The credentials file does not get copied over so we'll do that manually 
   sudo cp -via ~/.cloudflared/cert.json /etc/cloudflared/
   # start the tunnel 
   sudo service cloudflared start
-elif [ "$as" == 'docker' ]; then
+elif [ "$as" == 'cloudflare_docker' ]; then
   # Retrieveing the docker repository for this OS
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
