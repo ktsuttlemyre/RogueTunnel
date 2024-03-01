@@ -73,12 +73,12 @@ echo "${docker_compose}"> /tmp/docker-compose.yml
 cd
 #install
 sudo apt-get install cloudflared
-manual=false
-if $manual; then
+install_strat='general'
+if [ "$install_strat" = 'script']; then
 	# The package for this OS is retrieved 
 	wget https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb
 	sudo dpkg -i cloudflared-stable-linux-amd64.deb
- else
+ elif [ "$install_strat" = 'official']; then
 	. /etc/os-release
 	read _ UBUNTU_VERSION_NAME <<< "$VERSION"
  	VERSION="$(echo "$VERSION" | cut -f 1 -d " ")"
@@ -92,6 +92,14 @@ if $manual; then
 	
 	# install cloudflared
 	sudo apt-get update && sudo apt-get install cloudflared
+ elif [ "$install_strat" = 'general' ]; then
+ 	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
+  	sudo apt update && apt upgrade
+   	sudo apt install curl lsb-release
+    	curl -L https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-archive-keyring.gpg >/dev/null
+    	echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
+     	sudo apt update
+        sudo apt install -y cloudflared
  fi
 # A local user directory is first created before we can install the tunnel as a system service 
 mkdir ~/.cloudflared
@@ -104,23 +112,23 @@ echo "${config_yml}" > ~/.cloudflared/config.yml
 
 
 if [ "$as" == 'service' ]; then
+
+  # Now we install the tunnel as a systemd service 
+  sudo cloudflared service install
+  # The credentials file does not get copied over so we'll do that manually 
+  sudo cp -via ~/.cloudflared/cert.json /etc/cloudflared/
+  # start the tunnel 
+  cd /tmp
+  sudo service cloudflared start
+elif [ "$as" == 'docker' ]; then
   # Retrieveing the docker repository for this OS
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
   # The OS is updated and docker is installed
   sudo apt update -y && sudo apt upgrade -y
   sudo apt install docker docker-compose -y 
-  # Now we install the tunnel as a systemd service 
-  sudo cloudflared service install
-  # The credentials file does not get copied over so we'll do that manually 
-  sudo cp -via ~/.cloudflared/cert.json /etc/cloudflared/
-  # Now we can bring up our container(s) with docker-compose and then start the tunnel 
-  cd /tmp
-  sudo docker-compose up -d && sudo service cloudflared start
-elif [ "$as" == 'docker' ]; then
-	echo "not implemented yet"
- else 
- 	echo "unknown value for how you wish to install"
-	exit 1
+else 
+  echo "unknown value for how you wish to install"
+  exit 1
 fi
 echo "Complete!"
