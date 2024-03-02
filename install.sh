@@ -24,7 +24,7 @@ settings_dir=/etc/cloudflare/
 
 
 #################################################
-cert_json=$(cat <<-EOF
+cert_json=$(cat << EOF
 {
   "AccountTag"   : "${AccountTag}",
   "TunnelID"     : "${TunnelID}",
@@ -35,7 +35,7 @@ EOF
 )
 
 #################################################
-config_yml=$(cat <<-EOF
+config_yml=$(cat << EOF
 tunnel: ${TunnelID}
 #this will be handled for you
 credentials-file: /etc/cloudflared/cert.json
