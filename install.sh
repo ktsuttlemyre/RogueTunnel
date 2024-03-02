@@ -110,7 +110,7 @@ elif [ "$as" == 'cloudflare_docker' ]; then
   sudo apt update -y && sudo apt upgrade -y
   sudo apt install docker docker-compose -y 
 elif [ "$as" == 'selfhosted_docker' ]; then
-
+  echo "not implemented"
 else
   echo "unknown value for how you wish to install"
   exit 1
