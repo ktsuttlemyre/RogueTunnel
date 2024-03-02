@@ -41,12 +41,14 @@ logfile: /var/log/cloudflared.log
 loglevel: info
 
 ingress:
-	- hostname: ${web_zone}
+	- hostname: ${domain}
 		service: http://localhost:8080
-	- hostname: ssh.${web_zone}
+	- hostname: ssh.${domain}
 		service: ssh://localhost:22
+  	- hostname: vnc.${domain}
+		service: vnc://localhost:5900
 	- hostname: "*"
-		path: "^/_healthcheck$"
+		path: "^/tunnelcheck$"
 		service: http_status:200
 	- hostname: "*"
 		service: hello-world
@@ -76,9 +78,9 @@ if [ "$as" == 'cloudflare_service' ]; then
   # A local user directory is first created before we can install the tunnel as a system service 
   mkdir -p ~/.cloudflared
   # Another herefile is used to dynamically populate the JSON credentials file 
-  echo "${cert_json}" > ~/.cloudflared/cert.json 
+  # echo "${cert_json}" > ~/.cloudflared/cert.json 
   # Same concept with the Ingress Rules the tunnel will use 
-  echo "${config_yml}" > ~/.cloudflared/config.yml
+  # echo "${config_yml}" > ~/.cloudflared/config.yml
 
   
   # Now we install the tunnel as a systemd service 
