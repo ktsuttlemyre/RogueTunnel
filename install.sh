@@ -84,7 +84,7 @@ if [ "$as" == 'cloudflare_service' ]; then
 
   # Another herefile is used to dynamically populate the JSON credentials file
   if [ -f "$cert" ]; then
-  	mv "$cert" ${settings_dir}cert.json
+  	! [ "$cert" -ef ${settings_dir}cert.json ] && mv "$cert" ${settings_dir}cert.json
   else
   	echo "${cert_json}" > ${settings_dir}cert.json 
   fi
@@ -92,7 +92,7 @@ if [ "$as" == 'cloudflare_service' ]; then
   
   # Same concept with the Ingress Rules the tunnel will use 
   if [ -f "$config" ]; then
-    mv "$config" ${settings_dir}config.yml
+    ! [ "$config" -ef ${settings_dir}config.yml ] && mv "$config" ${settings_dir}config.yml
   else
     echo "${config_yml}" > ${settings_dir}config.yml
   fi
