@@ -16,7 +16,6 @@ echo "Some of the commands will need sudo access. Please grant sudo use."
 #do a sudo command to get the password out of the way
 sudo echo "Thank you" || exit 1
 
-os='' # linux,mac,windows,etc
 as="${1:-cloudflare_service}" # cloudflare_service, cloudflare_docker, selfhosted_gateway
 cert="${2:-~/.cloudflared/cert.json}"
 config="${3:-~/.cloudflared/config.yml}"
@@ -110,7 +109,9 @@ elif [ "$as" == 'cloudflare_docker' ]; then
   # The OS is updated and docker is installed
   sudo apt update -y && sudo apt upgrade -y
   sudo apt install docker docker-compose -y 
-else 
+elif [ "$as" == 'selfhosted_docker' ]; then
+
+else
   echo "unknown value for how you wish to install"
   exit 1
 fi
