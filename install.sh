@@ -43,17 +43,18 @@ logfile: /var/log/cloudflared.log
 loglevel: info
 
 ingress:
-	- hostname: ${domain}
-		service: http://localhost:8080
-	- hostname: ssh.${domain}
-		service: ssh://localhost:22
-	- hostname: vnc.${domain}
-		service: vnc://localhost:5900
-	- hostname: "*"
-		path: "^/tunnelcheck$"
-		service: http_status:200
-	- hostname: "*"
-		service: hello-world
+  - hostname: ${domain}
+    service: http://localhost:8080
+  - hostname: ssh.${domain}
+    service: ssh://localhost:22
+  - hostname: vnc.${domain}
+    service: vnc://localhost:5900
+  - hostname: "*"
+    path: "^/tunnelcheck$"
+    service: http_status:200
+  - hostname: "*"
+    service: hello-world
+  - service: http_status:404
 EOF
 )
 
