@@ -65,8 +65,8 @@ if [ "$as" == 'cloudflare_service' ]; then
   #install
   if ! command -v cloudflared &> /dev/null; then
 	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
-	sudo apt update && apt upgrade
-	sudo apt install curl lsb-release
+	sudo apt update -y && apt upgrade -y
+	sudo apt install curl lsb-release -y
 	VERSION=$(lsb_release -cs)
 	#find codename with only bash
 	# . /etc/os-release
