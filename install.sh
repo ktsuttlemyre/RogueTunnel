@@ -47,7 +47,7 @@ ingress:
 		service: http://localhost:8080
 	- hostname: ssh.${domain}
 		service: ssh://localhost:22
-  	- hostname: vnc.${domain}
+	- hostname: vnc.${domain}
 		service: vnc://localhost:5900
 	- hostname: "*"
 		path: "^/tunnelcheck$"
