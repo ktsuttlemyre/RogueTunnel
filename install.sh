@@ -18,8 +18,10 @@ sudo echo "Thank you" || exit 1
 
 os='' # linux,mac,windows,etc
 as="${1:-cloudflare_service}" # cloudflare_service, cloudflare_docker, selfhosted_gateway
-cert="${2}"
-config="${3}"
+cert="${2:-~/.cloudflared/cert.json}"
+config="${3:-~/.cloudflared/config.yml}"
+
+settings_dir=/etc/cloudflare/
 
 
 #################################################
@@ -36,6 +38,7 @@ EOF
 #################################################
 config_yml=$(cat << "EOF"
 tunnel: ${TunnelID}
+#this will be handled for you
 credentials-file: /etc/cloudflared/cert.json
 logfile: /var/log/cloudflared.log
 loglevel: info
@@ -75,20 +78,31 @@ if [ "$as" == 'cloudflare_service' ]; then
 	sudo apt update
 	sudo apt install -y cloudflared
   fi
-  # A local user directory is first created before we can install the tunnel as a system service 
-  mkdir -p ~/.cloudflared
-  # Another herefile is used to dynamically populate the JSON credentials file 
-  # echo "${cert_json}" > ~/.cloudflared/cert.json 
-  # Same concept with the Ingress Rules the tunnel will use 
-  # echo "${config_yml}" > ~/.cloudflared/config.yml
-
   
+  # A local user directory is first created before we can install the tunnel as a system service 
+  mkdir -p /etc/cloudflared/
+
+  # Another herefile is used to dynamically populate the JSON credentials file
+  if [ -f "$cert" ]; then
+  	mv "$cert" ${settings_dir}cert.json
+  else
+  	echo "${cert_json}" > ${settings_dir}cert.json 
+  fi
+  cert=${settings_dir}cert.json
+  
+  # Same concept with the Ingress Rules the tunnel will use 
+  if [ -f "$config" ]; then
+    mv "$config" ${settings_dir}config.yml
+  else
+    echo "${config_yml}" > ${settings_dir}config.yml
+  fi
+  config=${settings_dir}config.yml
   # Now we install the tunnel as a systemd service 
-  sudo cloudflared service install
-  # The credentials file does not get copied over so we'll do that manually 
-  sudo cp -via ~/.cloudflared/cert.json /etc/cloudflared/
+  sudo cloudflared --config $config service install
+    
   # start the tunnel 
-  sudo service cloudflared start
+  sudo systemctl enable cloudflared
+  sudo systemctl start cloudflared
 elif [ "$as" == 'cloudflare_docker' ]; then
   # Retrieveing the docker repository for this OS
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
