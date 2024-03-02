@@ -20,7 +20,7 @@ as="${1:-cloudflare_service}" # cloudflare_service, cloudflare_docker, selfhoste
 cert="${2:-~/.cloudflared/cert.json}"
 config="${3:-~/.cloudflared/config.yml}"
 
-settings_dir=/etc/cloudflare/
+settings_dir=/etc/cloudflared/
 
 
 #################################################
