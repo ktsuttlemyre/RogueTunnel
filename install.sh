@@ -97,9 +97,12 @@ if [ "$as" == 'cloudflare_service' ]; then
     echo "${config_yml}" > ${settings_dir}config.yml
   fi
   config=${settings_dir}config.yml
-  # Now we install the tunnel as a systemd service 
+  # Now we install the tunnel as a systemd service
+  if [ -f /etc/init.d/cloudflared ]; then
+     sudo cloudflared service uninstall
+  fi
   sudo cloudflared --config $config service install
-    
+  
   # start the tunnel 
   sudo systemctl enable cloudflared
   sudo systemctl start cloudflared
