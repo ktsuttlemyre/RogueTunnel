@@ -65,7 +65,7 @@ if [ "$as" == 'cloudflare_service' ]; then
   #install
   if ! command -v cloudflared &> /dev/null; then
 	#https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/
-	sudo apt update -y && apt upgrade -y
+	sudo apt update -y && sudo apt upgrade -y
 	sudo apt install curl lsb-release -y
 	VERSION=$(lsb_release -cs)
 	#find codename with only bash
@@ -83,7 +83,12 @@ if [ "$as" == 'cloudflare_service' ]; then
   mkdir -p /etc/cloudflared/
 
   # Another herefile is used to dynamically populate the JSON credentials file
-  if [ -f "$cert" ]; then
+  if [ -z "$cert" ]; then
+     # interactive install
+     cloudflared tunnel login
+     cloudflared create 
+  elif [ -f "$cert" ]; then
+  	# move if it is not in the right path
   	! [ "$cert" -ef ${settings_dir}cert.json ] && mv "$cert" ${settings_dir}cert.json
   else
   	echo "${cert_json}" > ${settings_dir}cert.json 
@@ -91,7 +96,10 @@ if [ "$as" == 'cloudflare_service' ]; then
   cert=${settings_dir}cert.json
   
   # Same concept with the Ingress Rules the tunnel will use 
-  if [ -f "$config" ]; then
+  if [ -z "$config" ]; then
+     # interactive install
+  elif [ -f "$config" ]; then
+    # move if it is not in the right path
     ! [ "$config" -ef ${settings_dir}config.yml ] && mv "$config" ${settings_dir}config.yml
   else
     echo "${config_yml}" > ${settings_dir}config.yml
